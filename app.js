@@ -16,10 +16,12 @@ const BOSSES = [
 const state = {
   rows: createEmptyRows(),
   editing: null,
-  saving: false
+  saving: false,
+  authenticated: false
 };
 
 const els = {
+  app: document.querySelector(".app-shell"),
   head: document.querySelector("#tableHead"),
   rows: document.querySelector("#bossRows"),
   topBosses: document.querySelector("#topBosses"),
@@ -29,7 +31,13 @@ const els = {
   form: document.querySelector("#editForm"),
   editTitle: document.querySelector("#editTitle"),
   spawnInput: document.querySelector("#spawnTimeInput"),
-  cancelEdit: document.querySelector("#cancelEdit")
+  cancelEdit: document.querySelector("#cancelEdit"),
+  loginDialog: document.querySelector("#loginDialog"),
+  loginForm: document.querySelector("#loginForm"),
+  usernameInput: document.querySelector("#usernameInput"),
+  passwordInput: document.querySelector("#passwordInput"),
+  loginMessage: document.querySelector("#loginMessage"),
+  cancelLogin: document.querySelector("#cancelLogin")
 };
 
 init();
@@ -38,13 +46,22 @@ function init() {
   renderHead();
   renderRows();
   bindEvents();
-  loadData();
+  showLogin();
   setInterval(tick, 1000);
   setInterval(autoReloadData, AUTO_RELOAD_MS);
 }
 
 function bindEvents() {
   els.reloadData.addEventListener("click", loadData);
+
+  els.loginForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    await login();
+  });
+
+  els.cancelLogin.addEventListener("click", () => {
+    history.back();
+  });
 
   els.rows.addEventListener("click", (event) => {
     const button = event.target.closest("[data-edit]");
@@ -145,7 +162,7 @@ function renderDataboard() {
   }
 
   els.topBosses.innerHTML = upcoming.map((item, index) => `
-    <li class="top-item ${getUrgencyClass(item.ms)}">
+    <li class="top-item ${getUrgencyClass(item.ms)} ${item.ms > 0 && item.ms < URGENT_MS ? "blink-glow" : ""}">
       <span class="rank">${index + 1}</span>
       <div>
         <div class="top-name">
@@ -174,8 +191,57 @@ function tick() {
 }
 
 function autoReloadData() {
+  if (!state.authenticated) return;
   if (state.saving || els.dialog.open) return;
   loadData({ silent: true });
+}
+
+function showLogin() {
+  els.app.hidden = true;
+  els.loginMessage.textContent = "";
+  els.usernameInput.value = "";
+  els.passwordInput.value = "";
+  els.loginDialog.showModal();
+  els.usernameInput.focus();
+}
+
+async function login() {
+  const authUrl = getAuthUrl();
+  const username = els.usernameInput.value.trim();
+  const password = els.passwordInput.value;
+
+  if (!authUrl) {
+    els.loginMessage.textContent = "AUTH_URL is missing.";
+    return;
+  }
+
+  setLoginBusy(true);
+  els.loginMessage.textContent = "";
+  try {
+    const query = new URLSearchParams({
+      action: "login",
+      username,
+      password
+    });
+    const data = await jsonp(`${authUrl}?${query.toString()}`);
+    if (!data || data.ok !== true) {
+      els.loginMessage.textContent = "Invailid username/password";
+      els.passwordInput.value = "";
+      els.passwordInput.focus();
+      return;
+    }
+    state.authenticated = true;
+    els.loginDialog.close();
+    els.app.hidden = false;
+    loadData();
+  } catch (error) {
+    console.error(error);
+    els.loginMessage.textContent = "Invailid username/password";
+    els.passwordInput.value = "";
+    els.passwordInput.focus();
+  } finally {
+    setLoginBusy(false);
+  }
 }
 
 function openEditor(channel, bossKey) {
@@ -192,6 +258,7 @@ function openEditor(channel, bossKey) {
 }
 
 async function loadData(options = {}) {
+  if (!state.authenticated) return;
   const silent = options.silent === true;
   const apiUrl = getApiUrl();
   if (!apiUrl) {
@@ -286,6 +353,10 @@ function getApiUrl() {
   return String(window.SHEET_URL || "").trim();
 }
 
+function getAuthUrl() {
+  return String(window.AUTH_URL || "").trim();
+}
+
 function getRemainingMs(value) {
   const date = parseDate(value);
   if (!date) return 0;
@@ -349,6 +420,15 @@ function setBusy(isBusy, message) {
 
 function setStatus(message) {
   els.status.textContent = message;
+}
+
+function setLoginBusy(isBusy) {
+  [els.usernameInput, els.passwordInput, els.cancelLogin].forEach((control) => {
+    control.disabled = isBusy;
+  });
+  els.loginForm.querySelectorAll("button").forEach((button) => {
+    button.disabled = isBusy;
+  });
 }
 
 function jsonp(url) {
