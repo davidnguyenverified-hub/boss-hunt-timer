@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="style.css">
   </head>
   <body>
-    <main class="app-shell">
+    <main class="app-shell" hidden>
       <section class="toolbar" aria-label="Config">
         <div>
           <h1>Boss Countdown Manager</h1>
@@ -50,8 +50,28 @@
       </form>
     </dialog>
 
+    <dialog id="loginDialog" class="login-dialog">
+      <form id="loginForm" method="dialog">
+        <h2>Login</h2>
+        <label>
+          Username
+          <input id="usernameInput" type="text" autocomplete="username" required>
+        </label>
+        <label>
+          Password
+          <input id="passwordInput" type="password" autocomplete="current-password" required>
+        </label>
+        <p id="loginMessage" class="login-message" role="alert"></p>
+        <div class="dialog-actions">
+          <button id="cancelLogin" type="button">Cancel</button>
+          <button type="submit">Login</button>
+        </div>
+      </form>
+    </dialog>
+
     <script>
       var SHEET_URL = "https://script.google.com/macros/s/AKfycbywyjFHAFGpU09kJbPjWkKsScKowI2YY6Vmk_RWs7lIKD-ui28kj9TOXhUXJ7Edvg6MkA/exec";
+      var AUTH_URL = "https://script.google.com/macros/s/AKfycbwDIli5zDCfCsG6jMhdfQ1_d9x6C73Vn15vi3hY-DUmLhwOKPJVf29nMF-MiKk834U6/exec";
     </script>
     <script src="app.js"></script>
   </body>
