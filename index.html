@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Boss Countdown Manager</title>
+    <link rel="stylesheet" href="style.css">
+  </head>
+  <body>
+    <main class="app-shell">
+      <section class="toolbar" aria-label="Config">
+        <div>
+          <h1>Boss Countdown Manager</h1>
+          <p id="syncStatus">Loading Databoard</p>
+        </div>
+        <button id="reloadData" type="button">Reload Data</button>
+      </section>
+
+      <div class="layout">
+        <aside class="databoard" aria-label="Databoard">
+          <div class="databoard-head">
+            <h2>Databoard</h2>
+            <span>Bosses Spawning Soon:</span>
+          </div>
+          <ol id="topBosses" class="top-list"></ol>
+        </aside>
+
+        <section class="board-wrap" aria-label="Boss table">
+          <table class="boss-table">
+            <thead>
+              <tr id="tableHead"></tr>
+            </thead>
+            <tbody id="bossRows"></tbody>
+          </table>
+        </section>
+      </div>
+    </main>
+
+    <dialog id="editDialog" class="edit-dialog">
+      <form id="editForm" method="dialog">
+        <h2 id="editTitle">Sua gio boss</h2>
+        <label>
+          How long?
+          <input id="spawnTimeInput" type="text" inputmode="numeric" pattern="[0-9]{1,4}" maxlength="4" placeholder="1515" required>
+        </label>
+        <div class="dialog-actions">
+          <button id="cancelEdit" type="button">Cancel</button>
+          <button type="submit">Save</button>
+        </div>
+      </form>
+    </dialog>
+
+    <script>
+      var SHEET_URL = "https://script.google.com/macros/s/AKfycbywyjFHAFGpU09kJbPjWkKsScKowI2YY6Vmk_RWs7lIKD-ui28kj9TOXhUXJ7Edvg6MkA/exec";
+    </script>
+    <script src="app.js"></script>
+  </body>
+</html>
