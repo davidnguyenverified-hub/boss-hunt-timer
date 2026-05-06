@@ -6,6 +6,7 @@ Static HTML/JavaScript app for GitHub Pages. Data is stored in a Google Sheet th
 
 - `index.html`, `style.css`, `app.js`: deploy these to GitHub Pages.
 - `apps-script/Code.gs`: paste this into Apps Script from your Google Sheet.
+- `apps-script/AuthCode.gs`: paste this into a separate Apps Script attached to the login Google Sheet.
 
 ## Google Sheet Setup
 
@@ -20,12 +21,21 @@ Static HTML/JavaScript app for GitHub Pages. Data is stored in a Google Sheet th
 ```html
 <script>
   var SHEET_URL = "https://script.google.com/macros/s/YOUR_DEPLOYMENT_ID/exec";
+  var AUTH_URL = "https://script.google.com/macros/s/YOUR_AUTH_DEPLOYMENT_ID/exec";
 </script>
 ```
 
 The script uses the first sheet tab and expects these headers:
 
 `Channel`, `Kundun`, `Medusa`, `Seluphan`, `Lordsilver`, `Core`, `Feara`, `Niexe`, `SOD`, `Bug`
+
+## Login Sheet Setup
+
+Create another Google Sheet for login credentials with this structure:
+
+`username`, `password`
+
+Rows from row 2 are account data. Paste `apps-script/AuthCode.gs` into that Sheet's Apps Script project, deploy it as a Web app, then put the Web app URL into `AUTH_URL` in `index.html`.
 
 ## Time Input
 
